@@ -8,9 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import com.kpaatmik.reconciliation.dto.BaselineCsvRecord;
+import com.kpaatmik.reconciliation.dto.BaselineProcessedRecord;
 import com.kpaatmik.reconciliation.dto.SourceCsvRecord;
 import com.kpaatmik.reconciliation.dto.SourceProcessedRecord;
+import com.kpaatmik.reconciliation.processor.BaselineRecordProcessor;
 import com.kpaatmik.reconciliation.processor.SourceRecordProcessor;
+import com.kpaatmik.reconciliation.writer.BaselineChunkWriter;
 import com.kpaatmik.reconciliation.writer.SourceReconciliationWriter;
 
 @Configuration
@@ -48,4 +52,24 @@ public class AsyncBatchConfig {
 
 		return new AsyncItemWriter<>(sourceReconciliationWriter);
 	}
+
+	@Bean("asyncBaselineProcessor")
+	public AsyncItemProcessor<BaselineCsvRecord, BaselineProcessedRecord> asyncBaselineProcessor(
+			BaselineRecordProcessor baselineRecordProcessor,
+			@Qualifier("reconciliationTaskExecutor") TaskExecutor taskExecutor) {
+
+		AsyncItemProcessor<BaselineCsvRecord, BaselineProcessedRecord> processor = new AsyncItemProcessor<>(
+				baselineRecordProcessor);
+
+		processor.setTaskExecutor(taskExecutor);
+
+		return processor;
+	}
+
+	@Bean("asyncBaselineWriter")
+	public AsyncItemWriter<BaselineProcessedRecord> asyncBaselineWriter(BaselineChunkWriter baselineChunkWriter) {
+
+		return new AsyncItemWriter<>(baselineChunkWriter);
+	}
+
 }

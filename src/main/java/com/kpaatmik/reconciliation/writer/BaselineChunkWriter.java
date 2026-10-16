@@ -112,7 +112,7 @@ public class BaselineChunkWriter implements ItemWriter<BaselineProcessedRecord> 
 		 * transaction.
 		 */
 		if (!transactionsToInsert.isEmpty()) {
-			transactionRepository.saveAllAndFlush(transactionsToInsert);
+			transactionRepository.saveAll(transactionsToInsert);
 		}
 
 		run.setBaselineTotalCount(run.getBaselineTotalCount() + totalCount);
