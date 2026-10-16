@@ -101,14 +101,24 @@ public class SourceReconciliationWriter implements ItemWriter<SourceProcessedRec
 			BigDecimal sourceAmount = item.amount();
 
 			if (baselineAmount.compareTo(sourceAmount) == 0) {
-				// Matched records are counted but not audited.
+
+				// Amounts match. No update is required.
 				matchedCount++;
+
 			} else {
+
+				// Preserve the original amount for auditing.
+				BigDecimal originalAmount = baselineAmount;
+
+				// Update the baseline transaction with the source amount.
+				baseline.setAmount(sourceAmount);
+
 				mismatchCount++;
 
-				auditEntries.add(new AuditEntry(source, "AMOUNT_MISMATCH",
-						"Baseline amount=" + baselineAmount + ", source amount=" + sourceAmount));
+				auditEntries.add(new AuditEntry(source, "AMOUNT_MISMATCH", "Baseline amount=" + originalAmount
+						+ ", source amount=" + sourceAmount + ", baseline updated to=" + sourceAmount));
 			}
+
 		}
 
 		/*

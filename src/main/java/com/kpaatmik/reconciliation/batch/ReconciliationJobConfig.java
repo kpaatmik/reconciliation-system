@@ -1,5 +1,7 @@
 package com.kpaatmik.reconciliation.batch;
 
+import java.util.concurrent.Future;
+
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -7,6 +9,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.infrastructure.item.file.FlatFileItemReader;
+import org.springframework.batch.integration.async.AsyncItemProcessor;
+import org.springframework.batch.integration.async.AsyncItemWriter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +22,6 @@ import com.kpaatmik.reconciliation.dto.BaselineProcessedRecord;
 import com.kpaatmik.reconciliation.dto.SourceCsvRecord;
 import com.kpaatmik.reconciliation.dto.SourceProcessedRecord;
 import com.kpaatmik.reconciliation.processor.BaselineRecordProcessor;
-import com.kpaatmik.reconciliation.processor.SourceRecordProcessor;
 import com.kpaatmik.reconciliation.repository.ReconciliationRunRepository;
 import com.kpaatmik.reconciliation.repository.TransactionRepository;
 import com.kpaatmik.reconciliation.writer.BaselineChunkWriter;
@@ -63,15 +66,27 @@ public class ReconciliationJobConfig {
 		return new SourceReconciliationWriter(transactionRepository, runRepository, fileResolver, runId);
 	}
 
+//	@Bean
+//	public Step reconcileSourceStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+//			FlatFileItemReader<SourceCsvRecord> sourceReader, SourceRecordProcessor sourceRecordProcessor,
+//			SourceReconciliationWriter sourceReconciliationWriter,
+//			@Value("${reconciliation.chunk-size:500}") int chunkSize) {
+//
+//		return new StepBuilder("reconcileSourceStep", jobRepository)
+//				.<SourceCsvRecord, SourceProcessedRecord>chunk(chunkSize).transactionManager(transactionManager)
+//				.reader(sourceReader).processor(sourceRecordProcessor).writer(sourceReconciliationWriter).build();
+//	}
+
 	@Bean
 	public Step reconcileSourceStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-			FlatFileItemReader<SourceCsvRecord> sourceReader, SourceRecordProcessor sourceRecordProcessor,
-			SourceReconciliationWriter sourceReconciliationWriter,
+			FlatFileItemReader<SourceCsvRecord> sourceReader,
+			AsyncItemProcessor<SourceCsvRecord, SourceProcessedRecord> asyncSourceProcessor,
+			AsyncItemWriter<SourceProcessedRecord> asyncSourceWriter,
 			@Value("${reconciliation.chunk-size:500}") int chunkSize) {
 
 		return new StepBuilder("reconcileSourceStep", jobRepository)
-				.<SourceCsvRecord, SourceProcessedRecord>chunk(chunkSize).transactionManager(transactionManager)
-				.reader(sourceReader).processor(sourceRecordProcessor).writer(sourceReconciliationWriter).build();
+				.<SourceCsvRecord, Future<SourceProcessedRecord>>chunk(chunkSize).transactionManager(transactionManager)
+				.reader(sourceReader).processor(asyncSourceProcessor).writer(asyncSourceWriter).build();
 	}
 
 	@Bean
