@@ -21,23 +21,19 @@ import com.kpaatmik.reconciliation.entity.ReconciliationRun;
 import com.kpaatmik.reconciliation.entity.ReconciliationStatus;
 import com.kpaatmik.reconciliation.repository.ReconciliationRunRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
 @StepScope
+@RequiredArgsConstructor
 public class GenerateSummaryTasklet implements Tasklet {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	private final ReconciliationRunRepository runRepository;
 	private final ReconciliationFileResolver fileResolver;
+	@Value("#{jobParameters['runId']}")
 	private final UUID runId;
-
-	public GenerateSummaryTasklet(ReconciliationRunRepository runRepository, ReconciliationFileResolver fileResolver,
-			@Value("#{jobParameters['runId']}") String runId) {
-
-		this.runRepository = runRepository;
-		this.fileResolver = fileResolver;
-		this.runId = UUID.fromString(runId);
-	}
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
