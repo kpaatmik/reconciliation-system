@@ -40,17 +40,23 @@ public class BatchJobController {
 	@PostMapping("/run")
 	public ResponseEntity<BatchJobResponse> runReconciliationJob() throws Exception {
 
-		String runId = UUID.randomUUID().toString();
+		// Fixed ID for restartability testing only.
+		String runId = "c1dc69f7-4f35-4938-895a-94a805dacf83";
 		UUID runUuid = UUID.fromString(runId);
 
-		ReconciliationRun run = new ReconciliationRun();
-		run.setRunId(runUuid);
-		run.setBaselineFileName(fileResolver.getBaselineFile().getFileName().toString());
-		run.setSourceFileName(fileResolver.getSourceFile().getFileName().toString());
-		run.setStatus(ReconciliationStatus.PENDING);
+		// Create the business run only for the first execution.
+		if (!runRepository.existsById(runUuid)) {
 
-		runRepository.saveAndFlush(run);
+			ReconciliationRun run = new ReconciliationRun();
+			run.setRunId(runUuid);
+			run.setBaselineFileName(fileResolver.getBaselineFile().getFileName().toString());
+			run.setSourceFileName(fileResolver.getSourceFile().getFileName().toString());
+			run.setStatus(ReconciliationStatus.PENDING);
 
+			runRepository.saveAndFlush(run);
+		}
+
+		// Reuse the same identifying parameter for a restart.
 		JobParameters jobParameters = new JobParametersBuilder().addString("runId", runId).toJobParameters();
 
 		JobExecution execution = jobOperator.start(reconciliationJob, jobParameters);

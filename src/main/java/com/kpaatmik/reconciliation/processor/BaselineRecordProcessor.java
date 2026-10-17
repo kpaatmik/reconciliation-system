@@ -20,6 +20,9 @@ public class BaselineRecordProcessor implements ItemProcessor<BaselineCsvRecord,
 		try {
 			String transactionId = required(row.transactionId(), "transaction_id");
 
+//			if (transactionId.equals("TXN002136"))
+//				throw new RuntimeErrorException(null, "error");
+
 			String accountNumber = required(row.accountNumber(), "account_number");
 
 			String dateText = required(row.transactionDate(), "transaction_date");
