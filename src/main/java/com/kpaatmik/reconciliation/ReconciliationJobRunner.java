@@ -18,6 +18,9 @@ import com.kpaatmik.reconciliation.entity.ReconciliationRun;
 import com.kpaatmik.reconciliation.entity.ReconciliationStatus;
 import com.kpaatmik.reconciliation.repository.ReconciliationRunRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class ReconciliationJobRunner implements CommandLineRunner {
 
@@ -64,7 +67,7 @@ public class ReconciliationJobRunner implements CommandLineRunner {
 
 		JobExecution execution = jobOperator.start(reconciliationJob, parameters);
 
-		printExecution(runId, execution);
+		logExecution(runId, execution);
 	}
 
 	private void restartRun(String executionIdArgument) throws Exception {
@@ -96,7 +99,7 @@ public class ReconciliationJobRunner implements CommandLineRunner {
 
 			String runId = execution.getJobParameters().getString("runId");
 
-			printExecution(runId, execution);
+			logExecution(runId, execution);
 		}
 		default -> throw new IllegalStateException("Only FAILED or STOPPED executions can be restarted. "
 				+ "Current status: " + previousExecution.getStatus());
@@ -112,9 +115,10 @@ public class ReconciliationJobRunner implements CommandLineRunner {
 		return null;
 	}
 
-	private void printExecution(String runId, JobExecution execution) {
-		System.out.println("Run ID: " + runId);
-		System.out.println("Execution ID: " + execution.getId());
-		System.out.println("Status: " + execution.getStatus());
+	private void logExecution(String runId, JobExecution execution) {
+		log.info("Reconciliation run started or restarted");
+		log.info("Run ID: {}", runId);
+		log.info("Execution ID: {}", execution.getId());
+		log.info("Status: {}", execution.getStatus());
 	}
 }

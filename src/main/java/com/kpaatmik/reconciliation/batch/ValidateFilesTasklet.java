@@ -46,11 +46,6 @@ public class ValidateFilesTasklet implements Tasklet {
 		// Prepare the directory for this reconciliation run.
 		fileResolver.prepareOutputDirectory(runId);
 
-		System.out.println("Step 1: File validation completed.");
-		System.out.println("Baseline file: " + baselineFile);
-		System.out.println("Source file:   " + sourceFile);
-		System.out.println("Output directory: " + fileResolver.getRunOutputDirectory(runId));
-
 		return RepeatStatus.FINISHED;
 	}
 
