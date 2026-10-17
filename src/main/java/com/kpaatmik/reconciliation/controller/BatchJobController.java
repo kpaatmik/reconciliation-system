@@ -37,26 +37,52 @@ public class BatchJobController {
 		this.fileResolver = fileResolver;
 	}
 
+//	@PostMapping("/run")
+//	public ResponseEntity<BatchJobResponse> runReconciliationJob() throws Exception {
+//
+//		// Fixed ID for restartability testing only.
+//		String runId = UUID.randomUUID().toString();
+	//// String runId = "c1dc69f7-4f35-4938-895a-94a805dacf83";
+//		UUID runUuid = UUID.fromString(runId);
+//
+//		// Create the business run only for the first execution.
+//		if (!runRepository.existsById(runUuid)) {
+//
+//			ReconciliationRun run = new ReconciliationRun();
+//			run.setRunId(runUuid);
+//			run.setBaselineFileName(fileResolver.getBaselineFile().getFileName().toString());
+//			run.setSourceFileName(fileResolver.getSourceFile().getFileName().toString());
+//			run.setStatus(ReconciliationStatus.PENDING);
+//
+//			runRepository.saveAndFlush(run);
+//		}
+//
+//		// Reuse the same identifying parameter for a restart.
+//		JobParameters jobParameters = new JobParametersBuilder().addString("runId", runId).toJobParameters();
+//
+//		JobExecution execution = jobOperator.start(reconciliationJob, jobParameters);
+//
+//		return ResponseEntity.status(HttpStatus.ACCEPTED).body(new BatchJobResponse(runId, execution.getId(),
+//				execution.getStatus().toString(), "Reconciliation job submitted"));
+//	}
+//
+//	public record BatchJobResponse(String runId, Long executionId, String status, String message) {
+//	}
+
 	@PostMapping("/run")
 	public ResponseEntity<BatchJobResponse> runReconciliationJob() throws Exception {
 
-		// Fixed ID for restartability testing only.
-		String runId = "c1dc69f7-4f35-4938-895a-94a805dacf83";
+		String runId = UUID.randomUUID().toString();
 		UUID runUuid = UUID.fromString(runId);
 
-		// Create the business run only for the first execution.
-		if (!runRepository.existsById(runUuid)) {
+		ReconciliationRun run = new ReconciliationRun();
+		run.setRunId(runUuid);
+		run.setBaselineFileName(fileResolver.getBaselineFile().getFileName().toString());
+		run.setSourceFileName(fileResolver.getSourceFile().getFileName().toString());
+		run.setStatus(ReconciliationStatus.PENDING);
 
-			ReconciliationRun run = new ReconciliationRun();
-			run.setRunId(runUuid);
-			run.setBaselineFileName(fileResolver.getBaselineFile().getFileName().toString());
-			run.setSourceFileName(fileResolver.getSourceFile().getFileName().toString());
-			run.setStatus(ReconciliationStatus.PENDING);
+		runRepository.saveAndFlush(run);
 
-			runRepository.saveAndFlush(run);
-		}
-
-		// Reuse the same identifying parameter for a restart.
 		JobParameters jobParameters = new JobParametersBuilder().addString("runId", runId).toJobParameters();
 
 		JobExecution execution = jobOperator.start(reconciliationJob, jobParameters);
