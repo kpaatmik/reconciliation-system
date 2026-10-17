@@ -21,6 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.StepContribution;
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.kpaatmik.reconciliation.config.ReconciliationFileResolver;
 import com.kpaatmik.reconciliation.entity.ReconciliationRun;
@@ -48,7 +49,10 @@ class GenerateSummaryTaskletTest {
 
 		when(fileResolver.getAuditFile(runId.toString())).thenReturn(tempDir.resolve("run-" + runId + "/audit.csv"));
 
-		tasklet = new GenerateSummaryTasklet(runRepository, fileResolver, runId);
+		tasklet = new GenerateSummaryTasklet(runRepository, fileResolver);
+
+		// runId is UUID in GenerateSummaryTasklet, so inject a UUID.
+		ReflectionTestUtils.setField(tasklet, "runId", runId);
 	}
 
 	private ReconciliationRun createRun() {
@@ -131,6 +135,7 @@ class GenerateSummaryTaskletTest {
 
 		Path report = tempDir.resolve("run-" + runId + "/summary.txt");
 
+		assertTrue(Files.exists(report));
 		assertTrue(Files.readString(report).contains("Started At"));
 	}
 
@@ -217,5 +222,4 @@ class GenerateSummaryTaskletTest {
 
 		assertEquals("2026-10-17 10:30:45", result);
 	}
-
 }
