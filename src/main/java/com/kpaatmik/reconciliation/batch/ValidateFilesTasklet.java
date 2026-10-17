@@ -98,7 +98,7 @@ public class ValidateFilesTasklet implements Tasklet {
 
 		} catch (IllegalStateException exception) {
 			throw exception;
-		} catch (IOException | IllegalArgumentException exception) {
+		} catch (IOException | IllegalArgumentException | java.io.UncheckedIOException exception) {
 			throw new IllegalStateException("Unable to parse CSV file: " + file + ". " + exception.getMessage(),
 					exception);
 		}
