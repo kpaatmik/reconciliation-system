@@ -33,7 +33,7 @@ public class GenerateSummaryTasklet implements Tasklet {
 	private final ReconciliationRunRepository runRepository;
 	private final ReconciliationFileResolver fileResolver;
 	@Value("#{jobParameters['runId']}")
-	private final UUID runId;
+	private UUID runId;
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
