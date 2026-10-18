@@ -48,16 +48,6 @@ public class ReconciliationJobConfig {
 		return new BaselineChunkWriter(transactionRepository, runRepository, fileResolver, runId);
 	}
 
-//	@Bean
-//	public Step importBaselineStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-//			FlatFileItemReader<BaselineCsvRecord> baselineReader, BaselineRecordProcessor baselineRecordProcessor,
-//			BaselineChunkWriter baselineChunkWriter, @Value("${reconciliation.chunk-size:500}") int chunkSize) {
-//
-//		return new StepBuilder("importBaselineStep", jobRepository)
-//				.<BaselineCsvRecord, BaselineProcessedRecord>chunk(chunkSize).transactionManager(transactionManager)
-//				.reader(baselineReader).processor(baselineRecordProcessor).writer(baselineChunkWriter).build();
-//	}
-
 	@Bean
 	public Step importBaselineStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
 			FlatFileItemReader<BaselineCsvRecord> baselineReader,
@@ -79,17 +69,6 @@ public class ReconciliationJobConfig {
 
 		return new SourceReconciliationWriter(transactionRepository, runRepository, fileResolver, runId);
 	}
-
-//	@Bean
-//	public Step reconcileSourceStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-//			FlatFileItemReader<SourceCsvRecord> sourceReader, SourceRecordProcessor sourceRecordProcessor,
-//			SourceReconciliationWriter sourceReconciliationWriter,
-//			@Value("${reconciliation.chunk-size:500}") int chunkSize) {
-//
-//		return new StepBuilder("reconcileSourceStep", jobRepository)
-//				.<SourceCsvRecord, SourceProcessedRecord>chunk(chunkSize).transactionManager(transactionManager)
-//				.reader(sourceReader).processor(sourceRecordProcessor).writer(sourceReconciliationWriter).build();
-//	}
 
 	@Bean
 	public Step reconcileSourceStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
